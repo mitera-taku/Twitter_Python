@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ユーザーログイン</title>
+    <!-- jQueryのインクルード -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+</head>
+
+<body>
+    <form id="login_form">
+        <label>名前:</label><input type="text" name="username" required>
+        <label>パスワード:</label><input type="password" name="password" required>
+        <input type="submit" value="ログイン">
+    </form>
+    <script>
+        $(document).ready(function () {
+            $("#login_form").submit(function (event) {
+                event.preventDefault(); // デフォルトのフォーム送信を防止
+                var url = "http://127.0.0.1:8000/api/v1/api-token-auth";
+                $.post(
+                    url,
+                    $(this).serialize(),
+                    function (data) {
+                        // トークンを保存
+                        localStorage.setItem("api_token", data['token']);
+                        // コメントページにリダイレクト
+                        window.location.href = "http://127.0.0.1:8080/user_comment";
+                    }
+                ).fail(function (xhr) {
+                    alert("ログインに失敗しました。ユーザー名とパスワードを確認してください。");
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

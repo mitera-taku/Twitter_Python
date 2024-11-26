@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ユーザーコメント</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script>
+        var token = localStorage.getItem("api_token"); // トークンをグローバル変数として取得
+
+        if (!token) {
+            alert("ログインが必要です。ログインページにリダイレクトします。");
+            window.location.href = "http://127.0.0.1:8080/login.html";
+        }
+
+        // コメントを更新する関数
+// コメントを更新する関数
+    function update_text(pk) {
+            var update_value = $("#tweet_" + pk).val();
+            var url = `http://127.0.0.1:8000/api/v1/tweets/${pk}`;
+
+        $.ajax({
+            type: "PUT",
+            url: url,
+            dataType: "json",
+            xhrFields: {
+                withCredentials: true, // Cookieを送信
+            },
+            contentType: "application/json", // データ形式をJSONに指定
+            data: JSON.stringify({
+                text: update_value // 更新データ
+            }),
+            success: function () {
+                alert("コメントが更新されました！");
+            },
+            error: function (xhr) {
+                console.error("更新エラー: ", xhr.responseText);
+                alert("コメントの更新に失敗しました。");
+            }
+            });
+        }
+
+
+        // コメントを削除する関数
+        function delete_text(pk) {
+            var url = `http://127.0.0.1:8000/api/v1/tweets/` + pk;
+
+            $.ajax({
+                url: url,
+                type: "DELETE",
+                headers: {
+                    "Authorization": "Token " + token
+                },
+                xhrFields: {
+                    withCredentials: true
+                },
+                success: function () {
+                    alert("コメントが削除されました。");
+                    // ページをリロードしてリストを更新
+                    location.reload();
+                },
+                error: function (xhr) {
+                    console.error("エラー詳細: ", xhr.responseText);
+                    alert("コメントの削除に失敗しました。");
+                }
+            });
+        }
+
+        $(document).ready(function () {
+    // コメント一覧を取得
+    $.ajax({
+        type: "GET",
+        url: "http://127.0.0.1:8000/api/v1/tweets",
+        cache: false,
+        xhrFields: {
+            withCredentials: true // Cookieを送信
+        },
+        success: function (data) {
+            console.log(data);
+            for (let i = 0; i < data.length; i++) {
+                $("ul").append(`
+                    <li>
+                        <input type="text" id="tweet_${data[i].pk}" value="${data[i].text}">
+                        <input type="button" value="更新" onclick="update_text(${data[i].pk})">
+                        <input type="button" value="削除" onclick="delete_text(${data[i].pk})">
+                    </li>
+                `);
+            }
+        },
+        error: function (xhr) {
+            console.error("エラー詳細: ", xhr.responseText);
+            alert("コメントの取得に失敗しました。");
+        }
+    });
+});
+
+    </script>
+</head>
+
+<body>
+    <ul>
+    </ul>
+</body>
+</html>

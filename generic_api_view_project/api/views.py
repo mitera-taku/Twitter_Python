@@ -5,13 +5,25 @@ from rest_framework import status # type: ignore
 from rest_framework.response import Response # type: ignore
 from django.contrib.auth import login 
 from django.contrib.auth.models import User
-from rest_framework.generics import ListAPIView, ListCreateAPIView, CreateAPIView, GenericAPIView # type: ignore
+from rest_framework.generics import ListAPIView, ListCreateAPIView, CreateAPIView, GenericAPIView, RetrieveUpdateDestroyAPIView # type: ignore
+from rest_framework.permissions import IsAuthenticatedOrReadOnly # type: ignore
 
+class PostAPIDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    # lookup_field = 'title'
+    # lookup_url_kwarg = 'title'
+    
 
 class PostAPIView(ListCreateAPIView):
     
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+    
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
+    
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 class UserCreateAPIView(CreateAPIView):
     

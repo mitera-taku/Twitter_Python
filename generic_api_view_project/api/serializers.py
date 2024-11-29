@@ -8,6 +8,7 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = ('title', 'content', 'author', 'created_at')
+        read_only_fields = ('author', )
         
 
 class UserCreateSerializer(serializers.ModelSerializer):

@@ -1,3 +1,4 @@
+
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework import serializers # type: ignore
 from twitter_api_project.models import Tweet # type: ignore

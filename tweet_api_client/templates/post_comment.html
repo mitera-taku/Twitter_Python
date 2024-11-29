@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ポストページ</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+</head>
+<body>
+    <h1>ポストを作成</h1>
+    <form id="post_form" enctype="multipart/form-data">
+        <textarea name="text" placeholder="投稿内容を入力してください" required></textarea>
+        <br>
+        <label>画像を追加:</label>
+        <input type="file" name="image" accept="image/*">
+        <br>
+        <label>動画を追加:</label>
+        <input type="file" name="video" accept="video/*">
+        <br>
+        <button type="submit">投稿</button>
+    </form>
+
+    <h2>投稿一覧</h2>
+    <div id="tweets"></div>
+
+    <script>
+        $(document).ready(function () {
+            // 投稿を取得する
+            function fetchTweets() {
+                $.get('http://127.0.0.1:8000/api/v1/tweets/', function (data) {
+                    $('#tweets').empty();
+                    data.forEach(tweet => {
+                        const tweetElement = `
+                            <div>
+                                <p>${tweet.text}</p>
+                                ${tweet.image ? `<img src="${tweet.image}" alt="画像" style="max-width: 300px;">` : ''}
+                                ${tweet.video ? `<video src="${tweet.video}" controls style="max-width: 300px;"></video>` : ''}
+                                <small>投稿者: ${tweet.user} | 作成日: ${tweet.created_at}</small>
+                            </div>
+                            <hr>
+                        `;
+                        $('#tweets').append(tweetElement);
+                    });
+                });
+            }
+
+            // 投稿を送信する
+            $('#post_form').submit(function (e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'http://127.0.0.1:8000/api/v1/tweets/',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'Authorization': `Token ${localStorage.getItem('api_token')}`
+                    },
+                    success: function () {
+                        alert('投稿が完了しました！');
+                        fetchTweets();
+                    },
+                    error: function () {
+                        alert('投稿に失敗しました。');
+                    }
+                });
+            });
+
+            // 初期表示時に投稿を取得
+            fetchTweets();
+        });
+    </script>
+</body>
+</html>

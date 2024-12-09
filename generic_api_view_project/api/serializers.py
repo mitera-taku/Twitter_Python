@@ -1,14 +1,8 @@
 from rest_framework import serializers # type: ignore
-from .models import Post
+from .models import Post, Comment
 from django.contrib.auth import get_user_model, authenticate # type: ignore
 from django.contrib.auth.models import User
-
-class PostSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = Post
-        fields = ('title', 'content', 'author', 'created_at')
-        read_only_fields = ('author', )
+from django.urls import reverse
         
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -51,3 +45,29 @@ class UserLoginSerializer(serializers.Serializer):
         # 認証が成功した場合、ユーザー情報を返す
         data['user'] = user
         return data
+    
+class CommentSerializer(serializers.ModelSerializer):
+
+    detail_url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Comment
+        fields = ('id', 'post', 'author', 'comment', 'created_at', 'detail_url')
+        read_only_fields = ('id', 'post', 'author', 'created_at')  # 修正: read_pnly_fields -> read_only_fields
+        
+    def get_detail_url(self, obj):
+        return reverse('api:comment_retrieve_destroy_api_view', kwargs={'post_id': obj.post.id,'pk': obj.pk})
+
+
+class PostSerializer(serializers.ModelSerializer):
+
+    comments = CommentSerializer(many=True, read_only=True)  # 'commnets' -> 'comments'
+    detail_url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Post
+        fields = ('id', 'title', 'content', 'author', 'created_at', 'comments', 'detail_url')
+        read_only_fields = ('author', )
+    
+    def get_detail_url(self, obj):
+        return reverse('api:post_api_detail_view', kwargs={'pk': obj.pk})

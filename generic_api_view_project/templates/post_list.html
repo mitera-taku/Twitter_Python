@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>投稿一覧</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <h1>投稿一覧</h1>
+    <div id="post-list">
+        {% for post in posts %}
+            <div class="post-item">
+                <h2>{{ post.title }}</h2>
+                <p>{{ post.content|truncatewords:30 }}</p>
+                <a href="{% url 'api:post_api_detail_view' post.id %}">詳細を見る</a>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="pagination">
+        {% if posts.has_previous %}
+            <a href="?page={{ posts.previous_page_number }}">前のページ</a>
+        {% endif %}
+        <span>現在のページ: {{ posts.number }}</span>
+        {% if posts.has_next %}
+            <a href="?page={{ posts.next_page_number }}">次のページ</a>
+        {% endif %}
+    </div>
+</body>
+</html>

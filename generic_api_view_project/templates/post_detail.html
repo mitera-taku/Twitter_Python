@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ post.title }}</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <h1>{{ post.title }}</h1>
+    <p>{{ post.content }}</p>
+    <h2>コメント</h2>
+    <ul>
+        {% for comment in post.comments.all %}
+            <li>{{ comment.content }} - {{ comment.author.username }}</li>
+        {% endfor %}
+    </ul>
+    <form method="post" action="{% url 'api:comment_list_create_api_view' post.id %}">
+        {% csrf_token %}
+        <textarea name="content" placeholder="コメントを書く"></textarea>
+        <button type="submit">送信</button>
+    </form>
+    <a href="{% url 'api:post_api_view' %}">投稿一覧に戻る</a>
+</body>
+</html>

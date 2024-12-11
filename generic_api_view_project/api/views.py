@@ -69,3 +69,4 @@ class UserLoginAPIView(GenericAPIView):
             login(request, user)
             return redirect('post_api_view')  # 修正: リダイレクト
         return Response('リクエストが間違っています', status=status.HTTP_400_BAD_REQUEST)
+    

@@ -9,7 +9,7 @@ from rest_framework.generics import ListAPIView, ListCreateAPIView, CreateAPIVie
 from rest_framework.permissions import IsAuthenticatedOrReadOnly # type: ignore
 from rest_framework.pagination import PageNumberPagination # type: ignore
 from rest_framework.permissions import IsAuthenticated # type: ignore
-
+from django.shortcuts import redirect
 
 class CommentRetrieveDestroyAPIView(RetrieveDestroyAPIView):
     queryset = Comment.objects.all()
@@ -58,9 +58,8 @@ class UserCreateAPIView(CreateAPIView):
     serializer_class = UserCreateSerializer
     
 class UserLoginAPIView(GenericAPIView):
-    
     serializer_class = UserLoginSerializer
-    
+
     def post(self, request):
         serializer = self.get_serializer(data=request.data, context={
             'request': request, 
@@ -68,6 +67,5 @@ class UserLoginAPIView(GenericAPIView):
         if serializer.is_valid(raise_exception=True):
             user = serializer.validated_data['user']
             login(request, user)
-            return Response('ログインしました', status=status.HTTP_202_ACCEPTED)
-        return Response('requestが間違っています', status=status.HTTP_400_BAD_REQUEST)
-            
+            return redirect('post_api_view')  # 修正: リダイレクト
+        return Response('リクエストが間違っています', status=status.HTTP_400_BAD_REQUEST)

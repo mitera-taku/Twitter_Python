@@ -13,3 +13,5 @@ class Comment(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE) # type: ignore
     comment = models.TextField() # type: ignore
     created_at = models.DateTimeField(auto_now_add=True) # type: ignore
+    
+    

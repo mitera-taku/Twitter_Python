@@ -70,3 +70,11 @@ class UserLoginAPIView(GenericAPIView):
             return redirect('post_api_view')  # 修正: リダイレクト
         return Response('リクエストが間違っています', status=status.HTTP_400_BAD_REQUEST)
     
+class CommentRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def perform_update(self, serializer):
+        # 編集のログ保存や編集履歴の処理が必要な場合はここに追加
+        serializer.save()

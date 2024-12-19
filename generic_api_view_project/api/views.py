@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly # type: ignore
 from rest_framework.pagination import PageNumberPagination # type: ignore
 from rest_framework.permissions import IsAuthenticated # type: ignore
 from django.shortcuts import redirect
+from django.db.models import Q 
 
 class CommentRetrieveDestroyAPIView(RetrieveDestroyAPIView):
     queryset = Comment.objects.all()
@@ -70,3 +71,33 @@ class UserLoginAPIView(GenericAPIView):
             return redirect('post_api_view')  # 修正: リダイレクト
         return Response('リクエストが間違っています', status=status.HTTP_400_BAD_REQUEST)
     
+class CommentRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def perform_update(self, serializer):
+        # 編集のログ保存や編集履歴の処理が必要な場合はここに追加
+        serializer.save()
+        
+class CommentSearchAPIView(ListAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        # クエリパラメータの取得
+        query = self.request.query_params.get('q', '')  # 検索キーワード
+        post_id = self.request.query_params.get('post_id', None)  # 投稿IDで絞り込み
+
+        # ベースのクエリセット
+        queryset = Comment.objects.all()
+
+        # キーワード検索
+        if query:
+            queryset = queryset.filter(Q(comment__icontains=query))
+
+        # 投稿IDによるフィルタリング
+        if post_id:
+            queryset = queryset.filter(post_id=post_id)
+
+        return queryset

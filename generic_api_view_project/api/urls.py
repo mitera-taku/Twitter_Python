@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import PostAPIView, UserCreateAPIView, UserLoginAPIView, PostAPIDetailView, CommentListCreateAPIView, CommentRetrieveDestroyAPIView
+from .views import PostAPIView, UserCreateAPIView, UserLoginAPIView, PostAPIDetailView, CommentListCreateAPIView, CommentRetrieveDestroyAPIView, CommentRetrieveUpdateDestroyAPIView, CommentSearchAPIView
 
 app_name = 'api'
 
@@ -10,4 +10,7 @@ urlpatterns = [
     path('posts/<int:post_id>/comments/<int:pk>/', CommentRetrieveDestroyAPIView.as_view(), name='comment_retrieve_destroy_api_view'),
     path('signup/', UserCreateAPIView.as_view(), name='user_create_api_view'),
     path('login/', UserLoginAPIView.as_view(), name='user_login_api_view'),
+    path('posts/<int:post_id>/comments/<int:pk>/', CommentRetrieveUpdateDestroyAPIView.as_view(), name='comment_retrieve_update_destroy_api_view'),
+    path('comments/search/', CommentSearchAPIView.as_view(), name='comment_search_api_view'),
+
 ]

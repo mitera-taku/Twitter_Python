@@ -30,8 +30,11 @@ class UserLoginSerializer(serializers.Serializer):
         username = data.get('username')
         password = data.get('password')
 
+        # ユーザー名とパスワードの入力確認
         if not username or not password:
-            raise serializers.ValidationError('ユーザー名とパスワードを両方入力してください')
+            raise serializers.ValidationError({
+                'error': 'ユーザー名とパスワードを両方入力してください'
+            })
 
         # リクエストオブジェクトをコンテキストから取得
         request = self.context.get('request')
@@ -40,11 +43,15 @@ class UserLoginSerializer(serializers.Serializer):
         user = authenticate(request=request, username=username, password=password)
 
         if user is None:
-            raise serializers.ValidationError('ログインできませんでした')
-        
-        # 認証が成功した場合、ユーザー情報を返す
+            # 認証失敗時の具体的なメッセージ
+            raise serializers.ValidationError({
+                'error': 'ユーザー名またはパスワードが正しくありません'
+            })
+
+        # 認証成功時、ユーザー情報を追加
         data['user'] = user
         return data
+
     
 class CommentSerializer(serializers.ModelSerializer):
 
@@ -58,7 +65,6 @@ class CommentSerializer(serializers.ModelSerializer):
     def get_detail_url(self, obj):
         return reverse('api:comment_retrieve_destroy_api_view', kwargs={'post_id': obj.post.id,'pk': obj.pk})
 
-
 class PostSerializer(serializers.ModelSerializer):
 
     comments = CommentSerializer(many=True, read_only=True)  # 'commnets' -> 'comments'
@@ -71,3 +77,4 @@ class PostSerializer(serializers.ModelSerializer):
     
     def get_detail_url(self, obj):
         return reverse('api:post_api_detail_view', kwargs={'pk': obj.pk})
+    

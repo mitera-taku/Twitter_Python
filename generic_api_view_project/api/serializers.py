@@ -77,3 +77,4 @@ class PostSerializer(serializers.ModelSerializer):
     
     def get_detail_url(self, obj):
         return reverse('api:post_api_detail_view', kwargs={'pk': obj.pk})
+    

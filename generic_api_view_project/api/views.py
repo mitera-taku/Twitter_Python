@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from .models import Post, Comment
-from .serializers import PostSerializer, UserCreateSerializer, UserLoginSerializer, CommentSerializer
+from .models import Post, Comment, MediaPost
+from .serializers import PostSerializer, UserCreateSerializer, UserLoginSerializer, CommentSerializer, MediaPostSerializer
 from rest_framework import status # type: ignore
 from rest_framework.response import Response # type: ignore
 from django.contrib.auth import login 
@@ -11,6 +11,8 @@ from rest_framework.pagination import PageNumberPagination # type: ignore
 from rest_framework.permissions import IsAuthenticated # type: ignore
 from django.shortcuts import redirect
 from django.db.models import Q 
+from django.urls import reverse
+from rest_framework.parsers import MultiPartParser, FormParser # type: ignore
 
 class CommentRetrieveDestroyAPIView(RetrieveDestroyAPIView):
     queryset = Comment.objects.all()
@@ -68,7 +70,8 @@ class UserLoginAPIView(GenericAPIView):
         if serializer.is_valid(raise_exception=True):
             user = serializer.validated_data['user']
             login(request, user)
-            return redirect('post_api_view')  # 修正: リダイレクト
+            # 修正: reverse() で URL を取得してリダイレクト
+            return redirect(reverse('api:post_api_view'))
         return Response('リクエストが間違っています', status=status.HTTP_400_BAD_REQUEST)
     
 class CommentRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
@@ -101,3 +104,22 @@ class CommentSearchAPIView(ListAPIView):
             queryset = queryset.filter(post_id=post_id)
 
         return queryset
+    
+class MediaPostAPIView(ListCreateAPIView):
+    queryset = MediaPost.objects.all()
+    serializer_class = MediaPostSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    parser_classes = [MultiPartParser, FormParser]  # 追加: ファイルアップロード対応
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        validated_data = serializer.validated_data
+
+        # データの保存時に author を明示的に指定
+        serializer.save(author=self.request.user)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

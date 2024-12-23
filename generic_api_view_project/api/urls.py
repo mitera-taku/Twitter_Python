@@ -1,5 +1,7 @@
 from django.urls import path
-from .views import PostAPIView, UserCreateAPIView, UserLoginAPIView, PostAPIDetailView, CommentListCreateAPIView, CommentRetrieveDestroyAPIView, CommentRetrieveUpdateDestroyAPIView, CommentSearchAPIView
+from .views import PostAPIView, UserCreateAPIView, UserLoginAPIView, PostAPIDetailView, CommentListCreateAPIView, CommentRetrieveDestroyAPIView, CommentRetrieveUpdateDestroyAPIView, CommentSearchAPIView, MediaPostAPIView
+from django.conf.urls.static import static
+from django.conf import settings
 
 app_name = 'api'
 
@@ -12,5 +14,9 @@ urlpatterns = [
     path('login/', UserLoginAPIView.as_view(), name='user_login_api_view'),
     path('posts/<int:post_id>/comments/<int:pk>/', CommentRetrieveUpdateDestroyAPIView.as_view(), name='comment_retrieve_update_destroy_api_view'),
     path('comments/search/', CommentSearchAPIView.as_view(), name='comment_search_api_view'),
+    path('media-posts/', MediaPostAPIView.as_view(), name='media_post_api')
 
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

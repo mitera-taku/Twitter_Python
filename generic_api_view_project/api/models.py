@@ -14,4 +14,16 @@ class Comment(models.Model):
     comment = models.TextField() # type: ignore
     created_at = models.DateTimeField(auto_now_add=True) # type: ignore
     
+
+class MediaPost(models.Model):
+    title = models.CharField(max_length=100)# type: ignore
+    description = models.TextField(blank=True, null=True)# type: ignore
+    image = models.ImageField(upload_to='images/', blank=True, null=True) # type: ignore
+    video = models.FileField(upload_to='videos/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)# type: ignore
+    author = models.ForeignKey(User, on_delete=models.CASCADE, default=1)# type: ignore  # デフォルトユーザー ID
+
+
+    def __str__(self):
+        return self.title
     

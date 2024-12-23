@@ -1,5 +1,5 @@
 from rest_framework import serializers # type: ignore
-from .models import Post, Comment
+from .models import Post, Comment, MediaPost
 from django.contrib.auth import get_user_model, authenticate # type: ignore
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -77,4 +77,10 @@ class PostSerializer(serializers.ModelSerializer):
     
     def get_detail_url(self, obj):
         return reverse('api:post_api_detail_view', kwargs={'pk': obj.pk})
+    
+class MediaPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MediaPost
+        fields = ['id', 'title', 'description', 'image', 'video', 'created_at']
+        extra_kwargs = {'video': {'required': False}}  # video を省略可能に設定
     
